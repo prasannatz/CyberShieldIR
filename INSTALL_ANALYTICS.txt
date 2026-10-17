@@ -1,0 +1,30 @@
+CYBERSHIELD IR — MIDNIGHT ANALYTICS UPGRADE
+
+This upgrade adds dark navy + cyan styled analytics charts and a redesigned Analytics page.
+
+BEFORE YOU START
+1. Stop the Flask server with Ctrl+C in the terminal.
+2. Make a copy of your current app.py and templates folder.
+3. Do NOT replace or delete cybershield.db.
+
+INSTALL
+1. Extract this ZIP into your existing CyberShieldIR project folder.
+2. Allow app.py to be replaced by the included updated version.
+3. Copy templates/analytics.html into your existing templates folder.
+4. The included templates/base.html is the Midnight theme base. If you already installed the Midnight Theme, it is the same base template and may safely replace it.
+5. Keep your other templates and all database files unchanged.
+
+RUN
+Activate your existing virtual environment, then run:
+    python app.py
+Open http://127.0.0.1:5000/analytics
+
+WHAT CHANGED
+- Dark chart backgrounds matching the Midnight theme
+- Cyan severity bars and color-coded response status bars
+- Donut chart with a center total, percentage labels, and readable legend
+- Cleaner chart labels, subtle gridlines, and value labels
+- Summary cards for total, active, resolved, and critical unresolved incidents
+- Clear note that these charts summarize saved incident records and are not live network monitoring
+
+The included app.py is based on the project copy available for this update. If you have made newer changes to app.py since that copy, back up your file and tell me before replacing it so we can merge the chart changes instead.

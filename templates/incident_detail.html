@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Incident #{{ incident.id }} | CyberShield IR{% endblock %}
+{% block breadcrumb %}Incident #{{ incident.id }}{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <a href="{{ url_for('home') }}" style="font-size:12px;font-weight:700;">← Back to incident queue</a>
+        <a class="button" href="{{ url_for('download_incident_report', incident_id=incident.id) }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M4 17v3h16v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Export incident report
+        </a>
+    </div>
+    <div class="section-kicker">Incident workspace · ID {{ incident.id }}</div>
+    <h2>{{ incident.title }}</h2>
+    <p style="max-width:760px;margin-bottom:14px;">Review the incident context, execute the recommended response steps, and maintain a traceable record of actions.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <span class="badge {{ incident.severity|lower }}">{{ incident.severity }} severity</span>
+        <span class="badge {{ 'resolved' if incident.status == 'Resolved' else '' }}">{{ incident.status }}</span>
+        <span class="badge">{{ incident.incident_type }}</span>
+        <span class="badge">{{ incident.industry }}</span>
+    </div>
+</div>
+
+<section class="card" aria-labelledby="summary-title">
+    <div class="card-header">
+        <div><div class="section-kicker">Incident context</div><h3 id="summary-title">Incident overview</h3></div>
+        <span class="muted" style="font-size:11px;">Reported {{ incident.created_at }}</span>
+    </div>
+    <div class="detail-grid">
+        <div><div class="detail-label">Incident ID</div><div class="detail-value">#{{ incident.id }}</div></div>
+        <div><div class="detail-label">Incident type</div><div class="detail-value">{{ incident.incident_type }}</div></div>
+        <div><div class="detail-label">Business area</div><div class="detail-value">{{ incident.industry }}</div></div>
+        <div><div class="detail-label">Current status</div><div class="detail-value">{{ incident.status }}</div></div>
+    </div>
+    <hr style="margin:22px 0;">
+    <div class="detail-label">Incident description</div>
+    <p style="white-space:pre-wrap;overflow-wrap:anywhere;color:#d1e1f1;margin-bottom:0;">{{ incident.description }}</p>
+</section>
+
+<div class="grid-two">
+    <section class="card" aria-labelledby="checklist-title">
+        <div class="card-header">
+            <div>
+                <div class="section-kicker">Guided response</div>
+                <h3 id="checklist-title">Response checklist</h3>
+                <p class="muted" style="font-size:12px;">Work through each task and mark it complete only after it has been performed or verified.</p>
+            </div>
+        </div>
+        {% set completed_count = checklist_items | selectattr('completed') | list | length %}
+        {% set total_count = checklist_items | length %}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><strong style="font-size:12px;">{{ completed_count }} / {{ total_count }} tasks completed</strong><span class="muted" style="font-size:11px;">{{ ((completed_count / total_count * 100)|round|int) if total_count else 0 }}%</span></div>
+        {% if total_count > 0 %}<progress value="{{ completed_count }}" max="{{ total_count }}" aria-label="Checklist completion"></progress>{% endif %}
+        {% if checklist_items %}
+            {% for item in checklist_items %}
+                <div class="checklist-row">
+                    <form method="POST" action="{{ url_for('update_checklist_item', incident_id=incident.id, item_id=item.id) }}">
+                        <button class="button {{ 'secondary' if item.completed else '' }}" type="submit">{% if item.completed %}✓ Completed{% else %}Mark complete{% endif %}</button>
+                    </form>
+                    <div class="checklist-task {{ 'completed' if item.completed else '' }}">{{ item.task }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">No checklist tasks have been generated for this incident yet.</div>
+        {% endif %}
+    </section>
+
+    <div>
+        <section class="card" aria-labelledby="status-title">
+            <div class="section-kicker">Incident lifecycle</div>
+            <h3 id="status-title">Update status</h3>
+            <p class="muted" style="font-size:12px;">Document why the incident is moving to a new stage.</p>
+            <form method="POST" action="{{ url_for('update_status', incident_id=incident.id) }}">
+                <label for="status">New status</label>
+                <select id="status" name="status" required>
+                    {% for status in statuses %}<option value="{{ status }}" {% if status == incident.status %}selected{% endif %}>{{ status }}</option>{% endfor %}
+                </select>
+                <label for="status_note">Action taken / reason</label>
+                <textarea id="status_note" name="note" rows="4" maxlength="2000" required placeholder="Describe the action performed and its outcome."></textarea>
+                <button class="button" type="submit">Save status update</button>
+            </form>
+        </section>
+
+        <section class="card" aria-labelledby="action-title">
+            <div class="section-kicker">Investigation notes</div>
+            <h3 id="action-title">Record response action</h3>
+            <p class="muted" style="font-size:12px;">Add a concise note to the incident's audit trail.</p>
+            <form method="POST" action="{{ url_for('add_action', incident_id=incident.id) }}">
+                <label for="action">Action performed</label>
+                <textarea id="action" name="action" rows="4" maxlength="2000" required placeholder="What was checked, changed, or verified?"></textarea>
+                <button class="button" type="submit">Add response note</button>
+            </form>
+        </section>
+    </div>
+</div>
+
+<section class="card" aria-labelledby="history-title">
+    <div class="card-header">
+        <div><div class="section-kicker">Audit trail</div><h3 id="history-title">Response history</h3><p class="muted" style="font-size:12px;">Recorded actions for this incident, newest first.</p></div>
+        <span class="badge">{{ incident.actions|length }} entries</span>
+    </div>
+    {% if incident.actions %}
+        {% for item in incident.actions|sort(attribute='id', reverse=true) %}
+            <div class="history-item">
+                <div class="history-time">{{ item.created_at }} · Action #{{ item.id }}</div>
+                <div style="color:#d1e1f1;">{{ item.action }}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">No response actions have been recorded yet.</div>
+    {% endif %}
+</section>
+{% endblock %}

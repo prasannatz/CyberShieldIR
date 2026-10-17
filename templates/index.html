@@ -1,0 +1,204 @@
+
+{% extends "base.html" %}
+{% block title %}Dashboard | CyberShield IR{% endblock %}
+
+{% block content %}
+
+<h2>Security Dashboard</h2>
+<p class="muted">Monitor, prioritize, and manage cybersecurity incidents across Corporate IT and Finance.</p>
+
+<div class="stats">
+    <div class="card">
+        <p class="muted">Total Incidents</p>
+        <div class="stat-number">{{ total }}</div>
+        <p class="muted">All reported incidents</p>
+    </div>
+
+    <div class="card">
+        <p class="muted">Open Incidents</p>
+        <div class="stat-number">{{ open_count }}</div>
+        <p class="muted">Awaiting resolution</p>
+    </div>
+
+    <div class="card">
+        <p class="muted">Critical Incidents</p>
+        <div class="stat-number">{{ critical_count }}</div>
+        <p class="muted">Unresolved critical cases</p>
+    </div>
+
+    <div class="card">
+        <p class="muted">Resolved Incidents</p>
+        <div class="stat-number">{{ resolved_count }}</div>
+        <p class="muted">Marked as resolved</p>
+    </div>
+</div>
+
+<h3>Open Incidents by Severity</h3>
+
+<div class="stats">
+    <div class="card">
+        <p class="muted">Low</p>
+        <div class="stat-number">{{ low_count }}</div>
+    </div>
+
+    <div class="card">
+        <p class="muted">Medium</p>
+        <div class="stat-number">{{ medium_count }}</div>
+    </div>
+
+    <div class="card">
+        <p class="muted">High</p>
+        <div class="stat-number">{{ high_count }}</div>
+    </div>
+
+    <div class="card">
+        <p class="muted">Critical</p>
+        <div class="stat-number">{{ critical_count }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Priority Queue</h3>
+    <p class="muted">
+        Unresolved High and Critical incidents requiring review.
+    </p>
+
+    {% if priority_incidents %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Incident</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for incident in priority_incidents %}
+                    <tr>
+                        <td>#{{ incident.id }}</td>
+                        <td>{{ incident.title }}</td>
+                        <td>{{ incident.incident_type }}</td>
+                        <td>
+                            <span class="badge">{{ incident.severity }}</span>
+                        </td>
+                        <td>{{ incident.status }}</td>
+                        <td>
+                            <a href="{{ url_for('incident_detail', incident_id=incident.id) }}">
+                                Review incident
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No unresolved High or Critical incidents.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Recent Incidents</h3>
+
+    <form method="GET" action="{{ url_for('home') }}" class="card">
+        <h3>Search and Filter Incidents</h3>
+
+        <label for="q">Search by incident title</label>
+        <input
+            type="text"
+            id="q"
+            name="q"
+            placeholder="Enter incident title..."
+            value="{{ search_text }}"
+        >
+
+        <label for="incident_type">Incident Type</label>
+        <select id="incident_type" name="incident_type">
+            <option value="">All Types</option>
+            {% for item in incident_types %}
+                <option value="{{ item }}"
+                    {% if selected_type == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label for="severity">Severity</label>
+        <select id="severity" name="severity">
+            <option value="">All Severities</option>
+            {% for item in severity_options %}
+                <option value="{{ item }}"
+                    {% if selected_severity == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <label for="status">Status</label>
+        <select id="status" name="status">
+            <option value="">All Statuses</option>
+            {% for item in status_options %}
+                <option value="{{ item }}"
+                    {% if selected_status == item %}selected{% endif %}>
+                    {{ item }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Apply Filters</button>
+        <a href="{{ url_for('home') }}">Clear Filters</a>
+    </form>
+
+    <p class="muted">
+        Showing {{ incidents|length }} matching incident(s).
+    </p>
+
+    <p>
+        <a class="button" href="{{ url_for('new_incident') }}">
+            + Report New Incident
+        </a>
+    </p>
+
+    {% if incidents %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Incident</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for incident in incidents %}
+                    <tr>
+                        <td>#{{ incident.id }}</td>
+                        <td>
+                            <a href="{{ url_for('incident_detail', incident_id=incident.id) }}">
+                                {{ incident.title }}
+                            </a>
+                        </td>
+                        <td>{{ incident.incident_type }}</td>
+                        <td>
+                            <span class="badge">{{ incident.severity }}</span>
+                        </td>
+                        <td>{{ incident.status }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">
+            No matching incidents. Try changing your filters or report a new incident.
+        </p>
+    {% endif %}
+</div>
+
+{% endblock %}

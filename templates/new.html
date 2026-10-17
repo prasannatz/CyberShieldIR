@@ -1,0 +1,53 @@
+
+{% extends "base.html" %}
+{% block title %}Report Incident | CyberShield IR{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Report a Cybersecurity Incident</h2>
+    <p class="muted">Enter the details of the incident for investigation.</p>
+
+    <form method="POST" action="{{ url_for('new_incident') }}">
+        <label for="title">Incident Title</label>
+        <input id="title" name="title" maxlength="150"
+               placeholder="e.g. Suspicious employee login" required>
+
+        <label for="incident_type">Incident Type</label>
+        <select id="incident_type" name="incident_type" required>
+            <option value="">Select incident type</option>
+            <option>Phishing</option>
+            <option>Ransomware</option>
+            <option>Unauthorized Access</option>
+            <option>Data Breach</option>
+            <option>Malware</option>
+            <option>Suspicious Transaction</option>
+            <option>Denial of Service</option>
+            <option>Other</option>
+        </select>
+
+        <label for="industry">Industry</label>
+        <select id="industry" name="industry" required>
+            <option value="">Select industry</option>
+            <option>Corporate IT</option>
+            <option>Finance</option>
+        </select>
+
+        <label for="severity">Severity</label>
+        <select id="severity" name="severity" required>
+            <option value="">Select severity</option>
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+        </select>
+
+        <label for="description">Incident Description</label>
+        <textarea id="description" name="description"
+                  rows="5" maxlength="5000"
+                  placeholder="Describe what happened, which system is affected, and what evidence is available."
+                  required></textarea>
+
+        <button class="button" type="submit">Submit Incident</button>
+    </form>
+</div>
+{% endblock %}

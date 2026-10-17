@@ -1,0 +1,83 @@
+
+{% extends "base.html" %}
+{% block title %}Audit Log | CyberShield IR{% endblock %}
+
+{% block content %}
+<h2>Audit Log & Integrity Verification</h2>
+<p class="muted">
+    Review recorded incident-response actions and verify the audit hash chain.
+</p>
+
+<div class="card">
+    {% if valid %}
+        <h3>Integrity Verification: Passed</h3>
+        <p>{{ message }}</p>
+        <p class="muted">
+            The verification function reported no integrity issue in the records it checked.
+        </p>
+    {% else %}
+        <h3>Integrity Verification: Failed</h3>
+        <p>{{ message }}</p>
+        <p>
+            Investigate the audit records before relying on this history.
+            Do not rebuild the hash chain until the cause is understood.
+        </p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Recorded Response Actions</h3>
+    <p class="muted">
+        Newest entries are shown first. Hash values are displayed for review.
+    </p>
+
+    {% if entries %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Entry</th>
+                        <th>Incident</th>
+                        <th>Action</th>
+                        <th>Previous Hash</th>
+                        <th>Entry Hash</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in entries %}
+                    <tr>
+                        <td>#{{ entry.id }}</td>
+                        <td>
+                            <a href="{{ url_for('incident_detail', incident_id=entry.incident_id) }}">
+                                #{{ entry.incident_id }}
+                            </a>
+                        </td>
+                        <td>{{ entry.action }}</td>
+                        <td>
+                            <small>{{ entry.previous_hash or "None (first entry)" }}</small>
+                        </td>
+                        <td>
+                            <small>{{ entry.entry_hash or "Not hashed" }}</small>
+                        </td>
+                        <td>
+                            <small>
+                                {% if entry.created_at %}
+                                    {{ entry.created_at.strftime("%Y-%m-%d %H:%M:%S") }}
+                                {% else %}
+                                    Not available
+                                {% endif %}
+                            </small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">No response actions have been recorded yet.</p>
+    {% endif %}
+</div>
+
+<p><a href="{{ url_for('home') }}">Back to Dashboard</a></p>
+{% endblock %}

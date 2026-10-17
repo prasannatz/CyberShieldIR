@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Security Analytics · CyberShield IR{% endblock %}
+{% block breadcrumb %}Security analytics{% endblock %}
+{% block content %}
+<style>
+.analytics-page { display:grid; gap:22px; }
+.analytics-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+.analytics-heading h1 { margin:0; color:#f1f8ff; font-size:clamp(25px,3vw,32px); letter-spacing:-.8px; }
+.analytics-heading p { margin:7px 0 0; color:#91a8c3; max-width:650px; }
+.analytics-kicker { color:#39d5f2; font-size:10px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin-bottom:7px; }
+.analytics-live { display:inline-flex; align-items:center; gap:8px; padding:8px 11px; border:1px solid #203b57; border-radius:999px; background:#0d2037; color:#a9bfd8; font-size:11px; }
+.analytics-live span { width:6px; height:6px; border-radius:50%; background:#39d5f2; box-shadow:0 0 12px #39d5f2; }
+.analytics-stat { position:relative; overflow:hidden; }
+.analytics-stat:after { content:""; position:absolute; width:90px; height:90px; right:-28px; top:-35px; border-radius:50%; background:rgba(57,213,242,.06); }
+.analytics-stat .stat-number { font-size:32px; }
+.analytics-stat .stat-label { text-transform:uppercase; letter-spacing:.07em; font-size:10px; }
+.analytics-stat .stat-icon { display:grid; place-items:center; width:34px; height:34px; margin-bottom:14px; border:1px solid rgba(57,213,242,.2); border-radius:10px; color:#39d5f2; background:rgba(57,213,242,.08); }
+.analytics-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; }
+.analytics-chart-card { min-width:0; padding:20px; overflow:hidden; }
+.analytics-chart-card.wide { grid-column:1/-1; }
+.analytics-chart-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px; }
+.analytics-chart-head h2 { margin:0; color:#e8f2ff; font-size:15px; letter-spacing:-.2px; }
+.analytics-chart-head p { margin:4px 0 0; color:#819bb6; font-size:11px; }
+.chart-tag { flex-shrink:0; color:#78e7f8; background:rgba(57,213,242,.08); border:1px solid rgba(57,213,242,.16); border-radius:7px; padding:4px 7px; font-size:9px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+.analytics-chart-image { display:block; width:100%; max-height:390px; object-fit:contain; }
+.analytics-footnote { display:flex; gap:9px; align-items:flex-start; padding:13px 15px; color:#91a8c3; background:rgba(13,32,55,.7); border:1px solid #203b57; border-radius:11px; font-size:11px; }
+.analytics-footnote strong { color:#dcecff; }
+@media(max-width:900px){ .analytics-grid{grid-template-columns:1fr}.analytics-chart-card.wide{grid-column:auto} }
+@media(max-width:560px){ .analytics-chart-card{padding:14px}.analytics-stat .stat-number{font-size:27px}.analytics-chart-image{max-height:330px} }
+</style>
+<div class="analytics-page">
+  <header class="analytics-heading">
+    <div>
+      <div class="analytics-kicker">Threat intelligence overview</div>
+      <h1>Security Analytics</h1>
+      <p>A clear view of incident severity, attack categories, and response progress across your workspace.</p>
+    </div>
+    <div class="analytics-live"><span></span> Live from incident records</div>
+  </header>
+
+  <section class="stats" aria-label="Incident summary">
+    <article class="card analytics-stat"><div class="stat-icon">◈</div><div class="stat-label">Total incidents</div><div class="stat-number">{{ total }}</div></article>
+    <article class="card analytics-stat"><div class="stat-icon">⌁</div><div class="stat-label">Active incidents</div><div class="stat-number">{{ open_count }}</div></article>
+    <article class="card analytics-stat"><div class="stat-icon">✓</div><div class="stat-label">Resolved incidents</div><div class="stat-number">{{ resolved_count }}</div></article>
+    <article class="card analytics-stat"><div class="stat-icon">!</div><div class="stat-label">Critical · unresolved</div><div class="stat-number">{{ critical_count }}</div></article>
+  </section>
+
+  <section class="analytics-grid" aria-label="Incident charts">
+    <article class="card analytics-chart-card">
+      <div class="analytics-chart-head"><div><h2>Severity distribution</h2><p>Understand incident urgency at a glance.</p></div><span class="chart-tag">Priority</span></div>
+      <img class="analytics-chart-image" src="data:image/png;base64,{{ severity_chart }}" alt="Bar chart showing incidents by severity" loading="lazy">
+    </article>
+    <article class="card analytics-chart-card">
+      <div class="analytics-chart-head"><div><h2>Incident categories</h2><p>See which attack types make up the workload.</p></div><span class="chart-tag">Threat mix</span></div>
+      <img class="analytics-chart-image" src="data:image/png;base64,{{ type_chart }}" alt="Donut chart showing incident types" loading="lazy">
+    </article>
+    <article class="card analytics-chart-card wide">
+      <div class="analytics-chart-head"><div><h2>Response lifecycle</h2><p>Track how incidents are progressing through response stages.</p></div><span class="chart-tag">Operations</span></div>
+      <img class="analytics-chart-image" src="data:image/png;base64,{{ status_chart }}" alt="Bar chart showing incidents by response status" loading="lazy">
+    </article>
+  </section>
+  <div class="analytics-footnote"><span aria-hidden="true">ⓘ</span><div><strong>How to read this page:</strong> Charts are generated from incidents saved in the local CyberShield IR database. They update when you refresh this page after incident records change; they do not represent live network monitoring.</div></div>
+</div>
+{% endblock %}

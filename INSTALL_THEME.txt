@@ -1,0 +1,15 @@
+CyberShield IR — Midnight Navy + Cyan theme refresh
+
+Files included:
+- templates/base.html
+- templates/incident_detail.html
+
+Install safely:
+1. Stop the Flask server with Ctrl+C.
+2. Make a backup copy of your current templates folder.
+3. Extract this ZIP into your CyberShieldIR project folder, preserving the templates/ folder structure, and allow these two files to be replaced.
+4. Do not replace or delete cybershield.db, app.py, models.py, or any other project files.
+5. Restart with: python app.py
+6. Open http://127.0.0.1:5000 and check Dashboard, Report Incident, Analytics, Audit Log, and an incident detail page.
+
+This theme refresh changes presentation only; it does not intentionally change routes, database models, or incident records.
